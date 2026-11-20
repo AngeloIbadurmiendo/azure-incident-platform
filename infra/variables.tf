@@ -21,11 +21,23 @@ variable "alert_emails" {
 variable "location" {
   description = "Ubicación de los recursos"
   type        = string
-  default     = "eastus"
+  default     = "centralus"
 }
 
 variable "resource_group_name" {
   description = "Nombre del proyecto de incidentes"
   type        = string
   default     = "incidents"
+}
+
+variable "database_username" {
+  description = "Nombre de usuario postgres db"
+  type        = string
+  default     = "incidentsadmin"
+}
+
+variable "resource_sufix" {
+  description = "Sufijo para los recursos"
+  type        = string
+  default     = "ai01"
 }
