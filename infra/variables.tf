@@ -41,3 +41,9 @@ variable "resource_sufix" {
   type        = string
   default     = "ai01"
 }
+
+variable "container_app_image" {
+  description = "Imagen del contenedor"
+  type        = string
+  default     = "mcr.microsoft.com/k8se/quickstart:latest"
+}
