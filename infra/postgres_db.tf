@@ -11,6 +11,7 @@ resource "azurerm_postgresql_flexible_server" "main" {
   version                = "16"
   administrator_login    = var.database_username
   administrator_password = random_password.password.result
+  tags                   = { project = "incident-platform" }
 
   storage_mb = 32768
   sku_name   = "B_Standard_B1ms"
