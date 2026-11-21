@@ -45,5 +45,5 @@ variable "resource_sufix" {
 variable "container_app_image" {
   description = "Imagen del contenedor"
   type        = string
-  default     = "mcr.microsoft.com/k8se/quickstart:latest"
+  default     = "ghcr.io/angeloibadurmiendo/azure-incident-platform:0.1.0"
 }

@@ -36,14 +36,24 @@ resource "azurerm_container_app" "api" {
         name        = "APPLICATIONINSIGHTS_CONNECTION_STRING"
         secret_name = "appinsights-connection-string"
       }
-
+      readiness_probe {
+        transport = "HTTP"
+        port      = 8000
+        path      = "/health"
+      }
+      liveness_probe {
+        transport     = "HTTP"
+        port          = 8000
+        path          = "/health"
+        initial_delay = 10
+      }
     }
     min_replicas = 0
     max_replicas = 2
   }
   ingress {
     external_enabled = true
-    target_port      = 80
+    target_port      = 8000
     traffic_weight {
       latest_revision = true
       percentage      = 100
