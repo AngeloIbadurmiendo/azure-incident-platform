@@ -6,6 +6,7 @@ resource "azurerm_log_analytics_workspace" "main" {
   retention_in_days   = 30
   tags                = { project = "incident-platform" }
   daily_quota_gb      = 0.5
+
 }
 
 resource "azurerm_application_insights" "main" {
@@ -15,4 +16,5 @@ resource "azurerm_application_insights" "main" {
   workspace_id        = azurerm_log_analytics_workspace.main.id
   application_type    = "web"
   tags                = { project = "incident-platform" }
+
 }
