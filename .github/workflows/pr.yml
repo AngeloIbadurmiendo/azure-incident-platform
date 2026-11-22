@@ -23,7 +23,7 @@ jobs:
         run: pip install -r requirements-dev.txt
         
       - name: Run tests
-        run: pytest
+        run: python -m pytest
 
   bandit:
     runs-on: ubuntu-latest
@@ -65,7 +65,7 @@ jobs:
         run: docker build -t incident-api:ci .
       
       - name: trivy scan
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: incident-api:ci
           severity: CRITICAL,HIGH
