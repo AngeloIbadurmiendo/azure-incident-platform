@@ -1,0 +1,75 @@
+name: PR validation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+        
+      - name: Run tests
+        run: python -m pytest
+
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit security scan
+        run: bandit -r app/
+  
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with: 
+          fetch-depth: 0
+      
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: docker build
+        run: docker build -t incident-api:ci .
+      
+      - name: trivy scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: incident-api:ci
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+        
+  
