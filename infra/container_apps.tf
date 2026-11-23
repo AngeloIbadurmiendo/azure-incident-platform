@@ -14,6 +14,10 @@ resource "azurerm_container_app" "api" {
   revision_mode                = "Single"
   tags                         = { project = "incident-platform" }
 
+  lifecycle {
+    ignore_changes = [template[0].container[0].image]
+  }
+
   secret {
     name  = "database-url"
     value = "postgresql+psycopg://${var.database_username}:${random_password.password.result}@${azurerm_postgresql_flexible_server.main.fqdn}:5432/${azurerm_postgresql_flexible_server_database.app_db.name}?sslmode=require"
