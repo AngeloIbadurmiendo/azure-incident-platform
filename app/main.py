@@ -1,5 +1,18 @@
 from contextlib import asynccontextmanager
 
+
+import logging
+import os
+from microsoft.opentelemetry import use_microsoft_opentelemetry
+loggerName = "incident-api"
+if os.getenv("APPLICATIONINSIGHTS_CONNECTION_STRING"):
+    use_microsoft_opentelemetry(
+        enable_azure_monitor=True,
+        logger_name=loggerName,
+    )
+logger = logging.getLogger(loggerName)
+logger.setLevel(logging.INFO)
+
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
