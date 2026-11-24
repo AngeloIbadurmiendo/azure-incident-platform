@@ -65,19 +65,19 @@ flowchart LR
     end
 ```
 
-**OIDC en una línea:** GitHub Actions obtiene un token temporal de Azure por cada ejecución, así que no existen contraseñas ni secretos de larga duración en el repositorio.
+**OIDC en una línea:** GitHub Actions obtiene un token temporal mediante una **User-Assigned Managed Identity** federada al environment `dev`, así que no existen contraseñas ni `client_secret` en el repositorio.
 
 ## Stack
 
 | Capa | Tecnología |
 |---|---|
-| API | Python 3.12, FastAPI, SQLAlchemy 2, Pydantic |
-| Base de datos | PostgreSQL 16 |
+| API | Python 3.12, FastAPI, SQLAlchemy 2, Pydantic, Microsoft OpenTelemetry |
+| Base de datos | PostgreSQL 16 (Azure Flexible Server) |
 | Contenedores | Docker, Docker Compose |
-| Infraestructura | Terraform (provider `azurerm`) |
-| Nube | Azure: Container Apps, Log Analytics, Application Insights |
+| Infraestructura | Terraform (providers `azurerm`, `random`) |
+| Nube | Azure: Container Apps, Log Analytics, Application Insights, Azure Monitor |
 | Registro de imágenes | GitHub Container Registry (GHCR) |
-| CI/CD | GitHub Actions con OIDC |
+| CI/CD | GitHub Actions con OIDC (Managed Identity) y Environment `dev` |
 | Seguridad | Gitleaks, Bandit, Trivy |
 
 ## API
@@ -119,10 +119,12 @@ pytest
 
 ```
 .
-├── app/                  # API: rutas, modelos, esquemas y configuración
-├── tests/                # Pruebas de la API
-├── infra/                # Terraform: presupuesto, resource group y el resto de la infraestructura
-├── Dockerfile            # Imagen de la API (usuario no-root)
+├── .github/workflows/    # CI/CD: pr.yml (validación y seguridad) y deploy.yml (GHCR + OIDC)
+├── app/                  # API FastAPI + telemetría con Microsoft OpenTelemetry
+├── tests/                # Pruebas automatizadas con pytest y SQLite en memoria
+├── infra/                # Terraform: presupuesto, RG, PostgreSQL, Container Apps, monitoreo y alertas
+├── docs/                 # Runbook, postmortem del incidente simulado y ADRs
+├── Dockerfile            # Imagen ligera (usuario no-root y paquetes SO parcheados)
 ├── docker-compose.yml    # API + PostgreSQL para desarrollo local
 ├── requirements.txt      # Dependencias de producción
 └── requirements-dev.txt  # Dependencias de desarrollo y pruebas
@@ -147,6 +149,6 @@ pytest
 
 ## Documentación operativa
 
-- [Runbook](docs/runbook.md): cómo detectar y resolver incidentes del servicio
-- [Postmortem](docs/postmortem.md): análisis del incidente simulado
-- [ADRs](docs/adr/): decisiones de arquitectura y su justificación
+- [Runbook](docs/runbook.md): triage inicial, respuesta a las 3 alertas y rollback rápido
+- [Postmortem](docs/postmortem.md): incidente simulado de caída de PostgreSQL, línea de tiempo real, hallazgos y acciones preventivas
+- [ADRs](docs/adr/README.md): decisiones de arquitectura, seguridad y costos (GHCR, OIDC con Managed Identity, scale-to-zero y red de BD)
