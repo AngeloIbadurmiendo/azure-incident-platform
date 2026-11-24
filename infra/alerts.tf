@@ -12,7 +12,7 @@ resource "azurerm_monitor_action_group" "main" {
 resource "azurerm_monitor_metric_alert" "failed_request" {
   name                = "ma-${var.resource_group_name}-failed-request-dev"
   resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_container_app.api.id]
+  scopes              = [azurerm_application_insights.main.id]
   description         = "Alert for failed requests"
   severity            = "1"
   frequency           = "PT1M"
@@ -20,17 +20,12 @@ resource "azurerm_monitor_metric_alert" "failed_request" {
   tags                = { project = "incident-platform" }
 
   criteria {
-    metric_namespace = "Microsoft.App/containerApps"
-    metric_name      = "Requests"
-    aggregation      = "Total"
+    metric_namespace = "microsoft.insights/components"
+    metric_name      = "requests/failed"
+    aggregation      = "Count"
     operator         = "GreaterThanOrEqual"
     threshold        = 3
 
-    dimension {
-      name     = "statusCodeCategory"
-      operator = "Include"
-      values   = ["5xx"]
-    }
   }
   action {
     action_group_id = azurerm_monitor_action_group.main.id
@@ -42,6 +37,7 @@ resource "azurerm_monitor_metric_alert" "high_latency" {
   resource_group_name = azurerm_resource_group.main.name
   scopes              = [azurerm_application_insights.main.id]
   description         = "Alert for high latency"
+  severity            = 2
   frequency           = "PT1M"
   window_size         = "PT5M"
   tags                = { project = "incident-platform" }
